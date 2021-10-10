@@ -1,95 +1,96 @@
-const calculator = {
-    displayNumber: '0',
-    operator: null,
-    firstNumber: null,
-    waitingForSecondNumber: false
-};
+let prevNumber = ''
+let calculationOperator = ''
+let currentNumber = '0'
 
-function updateDisplay() {
-    document.querySelector("#displayNumber").innerText = calculator.displayNumber;
-}
-
-function clearCalculator() {
-    calculator.displayNumber = '0';
-    calculator.operator = null;
-    calculator.firstNumber = null;
-    calculator.waitingForSecondNumber = false;
-}
-
-function inputDigit(digit) {
-    if (calculator.displayNumber === '0') {
-        calculator.displayNumber = digit;
+const inputNumber = (number) => {
+    if (currentNumber === '0') {
+        currentNumber = number
     } else {
-        calculator.displayNumber += digit;
+        currentNumber += number
     }
 }
 
-function inverseNumber() {
-    if (calculator.displayNumber === '0') {
-        return;
-    }
-    calculator.displayNumber = calculator.displayNumber * -1;
+const calculatorScreen = document.querySelector(".calculator-screen")
+const updateScreen = (number) => {
+    calculatorScreen.value = number
 }
 
-function handleOperator(operator) {
-    if (!calculator.waitingForSecondNumber) {
-        calculator.operator = operator;
-        calculator.waitingForSecondNumber = true;
-        calculator.firstNumber = calculator.displayNumber;
-        calculator.displayNumber = '0';
-    } else {
-        alert('Operator sudah ditetapkan')
+const number = document.querySelectorAll(".number");
+
+number.forEach((number) => {
+        number.addEventListener("click", (event) => {
+            inputNumber(event.target.value)
+            updateScreen(currentNumber)
+        })
     }
+
+)
+
+const operators = document.querySelectorAll(".operator");
+operators.forEach((operator) => {
+    operator.addEventListener("click", (event) => {
+        inputOperator(event.target.value);
+    })
+})
+
+const inputOperator = (operator) => {
+    if (calculationOperator === '') {
+        prevNumber = currentNumber;
+    }
+    calculationOperator = operator;
+    currentNumber = '0'
 }
 
-function performCalculation() {
-    if (calculator.firstNumber == null || calculator.operator == null) {
-        alert("Anda belum menetapkan operator");
-        return;
-    }
+const equalSign = document.querySelector(".equal-sign")
 
-    let result = 0;
-    if (calculator.operator === "+") {
-        result = parseInt(calculator.firstNumber) + parseInt(calculator.displayNumber);
-    } else {
-        result = parseInt(calculator.firstNumber) - parseInt(calculator.displayNumber)
-    }
+equalSign.addEventListener("click", () => {
+    calculate()
+    updateScreen(currentNumber)
+})
 
-    calculator.displayNumber = result;
+const calculate = () => {
+    let result = ''
+    switch (calculationOperator) {
+        case "+":
+            result = parseFloat(prevNumber) + parseFloat(currentNumber)
+            break
+        case "-":
+            result = prevNumber - currentNumber
+            break
+        case "*":
+            result = prevNumber * currentNumber
+            break
+        case "/":
+            result = prevNumber / currentNumber
+            break
+        default:
+            return
+    }
+    currentNumber = result;
+    calculationOperator = ''
 }
 
+const clearBtn = document.querySelector(".all-clear")
+clearBtn.addEventListener("click", () => {
+    clearAll()
+    updateScreen(currentNumber)
+})
 
-const buttons = document.querySelectorAll(".button");
-for (let button of buttons) {
-    button.addEventListener('click', function(event) {
+const clearAll = () => {
+    prevNumber = ''
+    calculationOperator = ''
+    currentNumber = '0'
+}
 
-        // mendapatkan objek elemen yang diklik
-        const target = event.target;
+const decimal = document.querySelector(".decimal");
+decimal.addEventListener("click", () => {
+    inputDecimal(event.target.value)
+    updateScreen(currentNumber)
+})
 
-        if (target.classList.contains('clear')) {
-            clearCalculator();
-            updateDisplay();
-            return;
-        }
-
-        if (target.classList.contains('negative')) {
-            inverseNumber();
-            updateDisplay();
-            return;
-        }
-
-        if (target.classList.contains('equals')) {
-            performCalculation();
-            updateDisplay();
-            return;
-        }
-
-        if (target.classList.contains('operator')) {
-            handleOperator(target.innerText)
-            return;
-        }
-
-        inputDigit(target.innerText);
-        updateDisplay()
-    });
+inputDecimal = (dot) => {
+    if (currentNumber.includes('.')) {
+        return
+    }
+    currentNumber += dot
 }
